@@ -1,6 +1,8 @@
-const express = require("express");
-const helmet = require("helmet");
-const cors = require("cors");
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const session = require('express-session');
+const Store = require('connect-session-knex')(session);
 
 /**
   Do what needs to be done to support sessions with the `express-session` package!
@@ -20,12 +22,33 @@ const server = express();
 server.use(helmet());
 server.use(express.json());
 server.use(cors());
+server.use(
+  session({
+    name: 'chocolatechip', // default is connect.sid
+    secret: 'some complicated string',
+    cookie: {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      secure: false, // only set cookies over https. Server will not send back a cookie over http.
+    }, // 1 day in milliseconds
+    httpOnly: true, // don't let JS code access cookies. Browser extensions run JS code on your browser!
+    resave: false,
+    saveUninitialized: false,
+    store: new Store({
+      knex: require('../data/db-config'),
+      tablename: 'sessions',
+      sidfieldname: 'sid',
+      createtable: true,
+      clearInterval: 12 * 60 * 60 * 1000,
+    }),
+  })
+);
 
-server.get("/", (req, res) => {
-  res.json({ api: "up" });
+server.get('/', (req, res) => {
+  res.json({ api: 'up' });
 });
 
-server.use((err, req, res, next) => { // eslint-disable-line
+// eslint-disable-next-line
+server.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     message: err.message,
     stack: err.stack,
