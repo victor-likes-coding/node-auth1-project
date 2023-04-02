@@ -11,7 +11,7 @@ function find() {
   resolves to an ARRAY with all users that match the filter condition
  */
 function findBy(filter) {
-  return db('users').where(filter).select('user_id', 'username');
+  return db('users').where(filter);
 }
 
 /**
@@ -26,7 +26,7 @@ function findById(user_id) {
  */
 function add(user) {
   return db('users')
-    .insert(user, 'user_id')
+    .insert(user)
     .then(([user_id]) => {
       return findById(user_id);
     });
