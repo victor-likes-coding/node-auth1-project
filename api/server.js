@@ -3,6 +3,8 @@ const helmet = require('helmet');
 const cors = require('cors');
 const session = require('express-session');
 const Store = require('connect-session-knex')(session);
+const usersRouter = require('./users/users-router');
+const authRouter = require('./auth/auth-router');
 
 /**
   Do what needs to be done to support sessions with the `express-session` package!
@@ -43,10 +45,8 @@ server.use(
   })
 );
 
-server.get('/', (req, res) => {
-  res.json({ api: 'up' });
-});
-
+server.use('/api/users', usersRouter);
+server.use('/api/auth', authRouter);
 // eslint-disable-next-line
 server.use((err, req, res, next) => {
   res.status(err.status || 500).json({
